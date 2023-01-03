@@ -1,14 +1,19 @@
 package model
 
-import "wxcloudrun-golang/internal/pkg/db"
+import (
+	"time"
+	"wxcloudrun-golang/internal/pkg/db"
+)
 
 type Court struct {
-	ID        int32  `json:"id" gorm:"primary_key;AUTO_INCREMENT"`
-	Name      string `json:"name" gorm:"column:name;type:varchar(255);not null;default:'';comment:'场馆名称'"`
-	Latitude  int32  `json:"latitude" gorm:"column:latitude;type:int(11);not null;default:0;comment:'纬度'"`
-	Longitude int32  `json:"longitude" gorm:"column:longitude;type:int(11);not null;default:0;comment:'经度'"`
-	PicURL    string `json:"pic_url" gorm:"column:pic_url;type:varchar(255);not null;default:'';comment:'场馆图片'"`
-	Info      string `json:"info" gorm:"column:info;type:varchar(255);not null;default:'';comment:'场馆简介'"`
+	ID          int32     `json:"id" gorm:"primary_key;AUTO_INCREMENT"`
+	Name        string    `json:"name" gorm:"column:name;type:varchar(255);not null;default:'';comment:'场馆名称'"`
+	Latitude    int32     `json:"latitude" gorm:"column:latitude;type:int(11);not null;default:0;comment:'纬度'"`
+	Longitude   int32     `json:"longitude" gorm:"column:longitude;type:int(11);not null;default:0;comment:'经度'"`
+	PicURL      string    `json:"pic_url" gorm:"column:pic_url;type:varchar(255);not null;default:'';comment:'场馆图片'"`
+	Info        string    `json:"info" gorm:"column:info;type:varchar(255);not null;default:'';comment:'场馆简介'"`
+	CreatedTime time.Time `json:"created_time" gorm:"column:created_time;type:datetime;not null;default:CURRENT_TIMESTAMP;comment:'创建时间'"`
+	UpdatedTime time.Time `json:"updated_time" gorm:"column:updated_time;type:datetime;not null;default:CURRENT_TIMESTAMP;comment:'更新时间'"`
 }
 
 // TableName get sql table name.获取数据库名字

@@ -21,7 +21,7 @@ type EventRepos struct {
 	Repos []string
 }
 
-func (s *Service) CreateEvent(userOpenID, courtID int32, date, startTime, endTime int32) (*model.Event, error) {
+func (s *Service) CreateEvent(userOpenID string, courtID int32, date, startTime, endTime int32) (*model.Event, error) {
 	// create event
 	event, err := s.EventDao.Create(&model.Event{
 		OpenID:      userOpenID,
@@ -38,7 +38,7 @@ func (s *Service) CreateEvent(userOpenID, courtID int32, date, startTime, endTim
 	return event, err
 }
 
-func (s *Service) GetEventsByUser(userOpenID int32) ([]model.Event, error) {
+func (s *Service) GetEventsByUser(userOpenID string) ([]model.Event, error) {
 	events, err := s.EventDao.GetsByDesc(&model.Event{OpenID: userOpenID})
 	if err != nil {
 		return nil, err

@@ -7,7 +7,7 @@ import (
 
 type Event struct {
 	ID          int32     `json:"id" gorm:"primary_key;AUTO_INCREMENT"`
-	OpenID      int32     `json:"open_id" gorm:"column:open_id;type:int(11);not null;default:0;comment:'用户id'"`
+	OpenID      string    `json:"open_id" gorm:"column:open_id;type:int(11);not null;default:0;comment:'用户id'"`
 	CourtID     int32     `json:"court_id" gorm:"column:court_id;type:int(11);not null;default:0;comment:'场馆id'"`
 	Date        int32     `json:"date" gorm:"column:date;type:int(11);not null;default:0;comment:'日期'"`
 	StartTime   int32     `json:"start_time" gorm:"column:start_time;type:int(11);not null;default:0;comment:'开始时间'"`

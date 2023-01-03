@@ -10,6 +10,7 @@ type Recommend struct {
 	ID          int       `json:"id" gorm:"column:id;type:int(11);not null;primary_key;auto_increment"`
 	VideoURL    string    `json:"video_url" gorm:"column:video_url;type:varchar(255);not null"`
 	Desc        string    `json:"desc" gorm:"column:desc;type:varchar(255);not null"`
+	LikedCount  int32     `json:"liked_count" gorm:"liked_count"`
 	CreatedTime time.Time `json:"created_time" gorm:"column:created_time;type:datetime;not null;default:CURRENT_TIMESTAMP;comment:'创建时间'"`
 	UpdatedTime time.Time `json:"updated_time" gorm:"column:updated_time;type:datetime;not null;default:CURRENT_TIMESTAMP;comment:'更新时间'"`
 }

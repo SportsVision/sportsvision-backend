@@ -57,8 +57,7 @@ func (s *Service) WeChatLogin(c *gin.Context) {
 }
 
 func (s *Service) StartEvent(c *gin.Context) {
-	userOpenIDString := c.GetHeader("X-WX-OPENID")
-	openID, _ := strconv.Atoi(userOpenIDString)
+	openID := c.GetHeader("X-WX-OPENID")
 	body, _ := ioutil.ReadAll(c.Request.Body)
 	newEvent := &model.Event{}
 	err := json.Unmarshal(body, newEvent)
@@ -66,7 +65,7 @@ func (s *Service) StartEvent(c *gin.Context) {
 		c.JSON(400, err.Error())
 		return
 	}
-	newEvent, err = s.EventService.CreateEvent(int32(openID), newEvent.CourtID, newEvent.Date, newEvent.StartTime,
+	newEvent, err = s.EventService.CreateEvent(openID, newEvent.CourtID, newEvent.Date, newEvent.StartTime,
 		newEvent.EndTime)
 	if err != nil {
 		c.JSON(500, err.Error())
@@ -79,11 +78,10 @@ func (s *Service) StartEvent(c *gin.Context) {
 
 // ToggleCollectVideo 收藏视频
 func (s *Service) ToggleCollectVideo(c *gin.Context) {
-	userOpenIDString := c.GetHeader("X-WX-OPENID")
-	openID, _ := strconv.Atoi(userOpenIDString)
+	openID := c.GetHeader("X-WX-OPENID")
 	videoID := c.Param("fileID")
 	fmt.Println(videoID)
-	collectRecord, err := s.CollectService.ToggleCollectVideo(int32(openID), videoID)
+	collectRecord, err := s.CollectService.ToggleCollectVideo(openID, videoID)
 	if err != nil {
 		c.JSON(500, err.Error())
 		return
@@ -114,9 +112,8 @@ func (s *Service) GetCountInfo(c *gin.Context) {
 
 // GetEventVideos 获取用户所属事件的视频
 func (s *Service) GetEventVideos(c *gin.Context) {
-	userOpenIDString := c.GetHeader("X-WX-OPENID")
-	openID, _ := strconv.Atoi(userOpenIDString)
-	events, err := s.EventService.GetEventsByUser(int32(openID))
+	openID := c.GetHeader("X-WX-OPENID")
+	events, err := s.EventService.GetEventsByUser(openID)
 	if err != nil {
 		c.JSON(500, err.Error())
 		return
@@ -141,9 +138,8 @@ func (s *Service) GetEventVideos(c *gin.Context) {
 
 // GetCollectVideos 获取用户收藏的视频
 func (s *Service) GetCollectVideos(c *gin.Context) {
-	userOpenIDString := c.GetHeader("X-WX-OPENID")
-	openID, _ := strconv.Atoi(userOpenIDString)
-	collects, err := s.CollectService.GetCollectByUser(int32(openID))
+	openID := c.GetHeader("X-WX-OPENID")
+	collects, err := s.CollectService.GetCollectByUser(openID)
 	if err != nil {
 		c.JSON(500, err.Error())
 		return

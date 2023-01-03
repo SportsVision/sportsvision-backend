@@ -16,7 +16,7 @@ func NewService() *Service {
 	}
 }
 
-func (s *Service) ToggleCollectVideo(openID int32, fileID string) (*model.Collect, error) {
+func (s *Service) ToggleCollectVideo(openID string, fileID string) (*model.Collect, error) {
 	// 查询是否已经收藏过
 	collects, err := s.CollectDao.Gets(&model.Collect{OpenID: openID, FileID: fileID})
 	fmt.Println(collects)
@@ -44,7 +44,7 @@ func (s *Service) ToggleCollectVideo(openID int32, fileID string) (*model.Collec
 	return collect, nil
 }
 
-func (s *Service) GetCollectByUser(userOpenID int32) ([]model.Collect, error) {
+func (s *Service) GetCollectByUser(userOpenID string) ([]model.Collect, error) {
 	collects, err := s.CollectDao.Gets(&model.Collect{OpenID: userOpenID, Status: 1})
 	if err != nil {
 		return nil, err

@@ -12,6 +12,7 @@ import (
 	"wxcloudrun-golang/internal/app/user"
 	"wxcloudrun-golang/internal/pkg/model"
 	"wxcloudrun-golang/internal/pkg/resp"
+	"wxcloudrun-golang/internal/pkg/tcos"
 
 	"github.com/gin-contrib/sessions"
 	"github.com/gin-gonic/gin"
@@ -123,7 +124,12 @@ func (s *Service) GetEventVideos(c *gin.Context) {
 		var repos []string
 		startTime := e.StartTime
 		for startTime <= e.EndTime {
-			repos = append(repos, fmt.Sprintf("%d/%d/%d", e.CourtID, e.Date, e.StartTime))
+			videos, err := tcos.GetCosFileList(fmt.Sprintf("%d/%d/%d", e.CourtID, e.Date, e.StartTime))
+			if err != nil {
+				c.JSON(500, err.Error())
+				return
+			}
+			repos = append(repos, videos...)
 			if startTime%100 != 0 {
 				startTime += 100
 				startTime -= 30
@@ -131,6 +137,7 @@ func (s *Service) GetEventVideos(c *gin.Context) {
 				startTime += 30
 			}
 		}
+
 		results = append(results, event.EventRepos{Event: e, Repos: repos})
 	}
 	c.JSON(200, resp.ToStruct(results, err))

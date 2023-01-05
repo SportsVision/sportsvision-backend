@@ -13,7 +13,7 @@ import (
 
 type TmpAuth struct {
 	TmpSecretId  string        `json:"TmpSecretId"`
-	TmpSecretKey string        `json:"TmpSecret"`
+	TmpSecretKey string        `json:"TmpSecretKey"`
 	Token        string        `json:"Token"`
 	ExpiredTime  time.Duration `json:"ExpiredTime"`
 }

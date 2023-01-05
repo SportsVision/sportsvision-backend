@@ -81,7 +81,6 @@ func (s *Service) StartEvent(c *gin.Context) {
 func (s *Service) ToggleCollectVideo(c *gin.Context) {
 	openID := c.GetHeader("X-WX-OPENID")
 	videoID := c.Param("fileID")
-	fmt.Println(videoID)
 	collectRecord, err := s.CollectService.ToggleCollectVideo(openID, videoID)
 	if err != nil {
 		c.JSON(500, err.Error())
@@ -121,7 +120,7 @@ func (s *Service) GetEventVideos(c *gin.Context) {
 	}
 	var results []event.EventRepos
 	for _, e := range events {
-		var repos []string
+		var videos []string
 		startTime := e.StartTime
 		for startTime < e.EndTime {
 			videos, err := tcos.GetCosFileList(fmt.Sprintf("highlight/court%d/%d/%d/", e.CourtID, e.Date, e.StartTime))
@@ -129,7 +128,7 @@ func (s *Service) GetEventVideos(c *gin.Context) {
 				c.JSON(500, err.Error())
 				return
 			}
-			repos = append(repos, videos...)
+			videos = append(videos, videos...)
 			if startTime%100 != 0 {
 				startTime += 100
 				startTime -= 30
@@ -138,7 +137,7 @@ func (s *Service) GetEventVideos(c *gin.Context) {
 			}
 		}
 
-		results = append(results, event.EventRepos{Event: e, Repos: repos})
+		results = append(results, event.EventRepos{Event: e, Videos: videos})
 	}
 	c.JSON(200, resp.ToStruct(results, err))
 }

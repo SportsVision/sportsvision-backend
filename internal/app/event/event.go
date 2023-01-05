@@ -18,7 +18,7 @@ func NewService() *Service {
 
 type EventRepos struct {
 	model.Event
-	Repos []string
+	Videos []string `json:"videos"`
 }
 
 func (s *Service) CreateEvent(userOpenID string, courtID int32, date, startTime, endTime int32) (*model.Event, error) {

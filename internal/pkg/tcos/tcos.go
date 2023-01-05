@@ -34,8 +34,6 @@ func GetCosFileList(prefix string) ([]string, error) {
 		log.Print(err)
 		return nil, err
 	}
-	// print temAuth
-	log.Printf("temAuth: %+v", temAuth)
 	u, _ := url.Parse("https://7072-prod-8ggnmu2o9736a81e-1316412156.cos.ap-shanghai.myqcloud.com")
 	b := &cos.BaseURL{BucketURL: u}
 	client := cos.NewClient(b, &http.Client{

@@ -123,12 +123,13 @@ func (s *Service) GetEventVideos(c *gin.Context) {
 		var videos []string
 		startTime := e.StartTime
 		for startTime < e.EndTime {
-			videos, err := tcos.GetCosFileList(fmt.Sprintf("highlight/court%d/%d/%d/", e.CourtID, e.Date, e.StartTime))
+			videoIDs, err := tcos.GetCosFileList(fmt.Sprintf("highlight/court%d/%d/%d/", e.CourtID, e.Date,
+				e.StartTime))
 			if err != nil {
 				c.JSON(500, err.Error())
 				return
 			}
-			videos = append(videos, videos...)
+			videos = append(videos, videoIDs...)
 			if startTime%100 != 0 {
 				startTime += 100
 				startTime -= 30

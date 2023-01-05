@@ -124,7 +124,7 @@ func (s *Service) GetEventVideos(c *gin.Context) {
 		var repos []string
 		startTime := e.StartTime
 		for startTime <= e.EndTime {
-			videos, err := tcos.GetCosFileList(fmt.Sprintf("%d/%d/%d", e.CourtID, e.Date, e.StartTime))
+			videos, err := tcos.GetCosFileList(fmt.Sprintf("highlight/court%d/%d/%d/", e.CourtID, e.Date, e.StartTime))
 			if err != nil {
 				c.JSON(500, err.Error())
 				return

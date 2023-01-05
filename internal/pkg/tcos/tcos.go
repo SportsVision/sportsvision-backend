@@ -3,6 +3,7 @@ package tcos
 import (
 	"context"
 	"encoding/json"
+	"fmt"
 	"log"
 	"net/http"
 	"net/url"
@@ -49,7 +50,7 @@ func GetCosFileList(prefix string) ([]string, error) {
 		},
 	})
 	opt := &cos.BucketGetOptions{
-		Prefix:  "highlight/court1/20230102/",
+		Prefix:  prefix + "n",
 		MaxKeys: 100,
 	}
 	cos, _, err := client.Bucket.Get(context.Background(), opt)
@@ -58,7 +59,8 @@ func GetCosFileList(prefix string) ([]string, error) {
 	}
 	var videoIDs []string
 	for _, v := range cos.Contents {
-		videoIDs = append(videoIDs, v.Key)
+		videoIDs = append(videoIDs, fmt.Sprintf("cloud://prod-8ggnmu2o9736a81e."+
+			"7072-prod-8ggnmu2o9736a81e-1316412156/%s", v.Key))
 	}
 	log.Printf("videoIDs: %+v", videoIDs)
 	return videoIDs, nil

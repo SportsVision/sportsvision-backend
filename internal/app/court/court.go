@@ -23,7 +23,7 @@ type CourtWithDistance struct {
 }
 
 // GetCourts 获取所有场地，按距离倒序排列
-func (s *Service) GetCourts(latitude, longitude string) ([]model.Court, error) {
+func (s *Service) GetCourts(latitude, longitude string) ([]CourtWithDistance, error) {
 	results, err := s.courtDao.Gets(&model.Court{})
 	if err != nil {
 		log.Println(err)
@@ -44,7 +44,7 @@ func (s *Service) GetCourts(latitude, longitude string) ([]model.Court, error) {
 	}
 	// sort by distance
 	sortByDistance(courtsWithDistance)
-	return results, nil
+	return courtsWithDistance, nil
 }
 
 func sortByDistance(courts []CourtWithDistance) {

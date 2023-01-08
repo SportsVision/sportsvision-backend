@@ -18,6 +18,7 @@ func main() {
 	router.GET("/auth/login", service.WeChatLogin)
 	router.GET("/courts", service.GetCounts)
 	router.GET("/courts/:id", service.GetCountInfo)
+	router.GET("/courts/:id/judge", service.JudgeLocation)
 
 	router.POST("/events", service.StartEvent)
 	router.POST("/collects/:fileID", service.ToggleCollectVideo)

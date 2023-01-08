@@ -72,3 +72,17 @@ func (s *Service) GetCountInfo(id int32) (*model.Court, error) {
 	}
 	return result, nil
 }
+
+func (s *Service) JudgeLocation(courtID int32, latitude, longitude string) (bool, error) {
+	court, err := s.courtDao.Get(&model.Court{ID: courtID})
+	if err != nil {
+		return false, err
+	}
+	lat, _ := strconv.ParseFloat(latitude, 64)
+	lng, _ := strconv.ParseFloat(longitude, 64)
+	distance := location.GetDistance(lat, lng, court.Latitude, court.Longitude)
+	if distance <= 100 {
+		return true, nil
+	}
+	return false, nil
+}

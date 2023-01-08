@@ -2,6 +2,7 @@ package db
 
 import (
 	"fmt"
+	"os"
 	"time"
 
 	"gorm.io/driver/mysql"
@@ -15,15 +16,10 @@ var dbInstance *gorm.DB
 func Init() error {
 
 	source := "%s:%s@tcp(%s)/%s?readTimeout=1500ms&writeTimeout=1500ms&charset=utf8&loc=Local&&parseTime=true"
-	//user := os.Getenv("MYSQL_USERNAME")
-	//pwd := os.Getenv("MYSQL_PASSWORD")
-	//addr := os.Getenv("MYSQL_ADDRESS")
-	//dataBase := os.Getenv("MYSQL_DATABASE")
-	user := "root"
-	pwd := "Sports-version"
-	addr := "sh-cynosdbmysql-grp-5a6hhg9k.sql.tencentcdb.com:22247"
-	dataBase := "sports_test"
-
+	user := os.Getenv("MYSQL_USERNAME")
+	pwd := os.Getenv("MYSQL_PASSWORD")
+	addr := os.Getenv("MYSQL_ADDRESS")
+	dataBase := os.Getenv("MYSQL_DATABASE")
 	if dataBase == "" {
 		dataBase = "golang_demo"
 	}

@@ -89,9 +89,11 @@ func (s *Service) ToggleCollectVideo(c *gin.Context) {
 	c.JSON(200, resp.ToStruct(collectRecord, err))
 }
 
-// GetCounts 获取场地, TODO(按位置排序,this week)
+// GetCounts 获取场地
 func (s *Service) GetCounts(c *gin.Context) {
-	counts, err := s.CourtService.GetCourts()
+	latitude := c.Query("latitude")
+	longitude := c.Query("longitude")
+	counts, err := s.CourtService.GetCourts(latitude, longitude)
 	if err != nil {
 		c.JSON(500, err.Error())
 		return

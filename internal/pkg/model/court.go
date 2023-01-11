@@ -8,6 +8,7 @@ import (
 type Court struct {
 	ID          int32     `json:"id" gorm:"primary_key;AUTO_INCREMENT"`
 	Name        string    `json:"name" gorm:"column:name;type:varchar(255);not null;default:'';comment:'场馆名称'"`
+	Location    string    `json:"location" gorm:"column:location;type:varchar(255);not null;default:'';comment:'场馆地址'"`
 	Latitude    float64   `json:"latitude" gorm:"column:latitude;type:decimal(10,6);not null;default:0.000000;comment:'纬度'"`
 	Longitude   float64   `json:"longitude" gorm:"column:longitude;type:decimal(10,6);not null;default:0.000000;comment:'经度'"`
 	PicURL      string    `json:"pic_url" gorm:"column:pic_url;type:varchar(255);not null;default:'';comment:'场馆图片'"`

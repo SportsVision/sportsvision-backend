@@ -103,8 +103,10 @@ func (s *Service) GetCounts(c *gin.Context) {
 
 func (s *Service) GetCountInfo(c *gin.Context) {
 	countID := c.Param("id")
+	latitude := c.Query("latitude")
+	longitude := c.Query("longitude")
 	countIDInt, _ := strconv.Atoi(countID)
-	countInfo, err := s.CourtService.GetCountInfo(int32(countIDInt))
+	countInfo, err := s.CourtService.GetCountInfo(int32(countIDInt), latitude, longitude)
 	if err != nil {
 		c.JSON(500, err.Error())
 		return

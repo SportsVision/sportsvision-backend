@@ -29,6 +29,7 @@ func (s *Service) GetCourts(latitude, longitude string) ([]CourtWithDistance, er
 		log.Println(err)
 		return nil, err
 	}
+	log.Println(results[0].Location)
 	// convert to float
 	lat, _ := strconv.ParseFloat(latitude, 64)
 	lng, _ := strconv.ParseFloat(longitude, 64)
@@ -65,10 +66,17 @@ func (s *Service) GetAllCourts() ([]model.Court, error) {
 	return results, nil
 }
 
-func (s *Service) GetCountInfo(id int32) (*model.Court, error) {
-	result, err := s.courtDao.Get(&model.Court{ID: id})
+func (s *Service) GetCountInfo(id int32, latitude, longitude string) (*CourtWithDistance, error) {
+	court, err := s.courtDao.Get(&model.Court{ID: id})
 	if err != nil {
 		return nil, err
+	}
+	lat, _ := strconv.ParseFloat(latitude, 64)
+	lng, _ := strconv.ParseFloat(longitude, 64)
+	distance := location.GetDistance(lat, lng, court.Latitude, court.Longitude)
+	result := &CourtWithDistance{
+		Court:    *court,
+		Distance: distance,
 	}
 	return result, nil
 }

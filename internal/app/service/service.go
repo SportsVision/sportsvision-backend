@@ -2,7 +2,6 @@ package service
 
 import (
 	"encoding/json"
-	"fmt"
 	"io/ioutil"
 	"strconv"
 	"wxcloudrun-golang/internal/app/collect"
@@ -12,7 +11,6 @@ import (
 	"wxcloudrun-golang/internal/app/user"
 	"wxcloudrun-golang/internal/pkg/model"
 	"wxcloudrun-golang/internal/pkg/resp"
-	"wxcloudrun-golang/internal/pkg/tcos"
 
 	"github.com/gin-contrib/sessions"
 	"github.com/gin-gonic/gin"
@@ -80,6 +78,10 @@ func (s *Service) StartEvent(c *gin.Context) {
 // ToggleCollectVideo 收藏视频
 func (s *Service) ToggleCollectVideo(c *gin.Context) {
 	openID := c.GetHeader("X-WX-OPENID")
+	if openID == "" {
+		c.JSON(400, "请先登录")
+		return
+	}
 	videoID := c.Param("fileID")
 	collectRecord, err := s.CollectService.ToggleCollectVideo(openID, videoID)
 	if err != nil {
@@ -117,32 +119,14 @@ func (s *Service) GetCountInfo(c *gin.Context) {
 // GetEventVideos 获取用户所属事件的视频
 func (s *Service) GetEventVideos(c *gin.Context) {
 	openID := c.GetHeader("X-WX-OPENID")
-	events, err := s.EventService.GetEventsByUser(openID)
+	if openID == "" {
+		c.JSON(400, "请先登录")
+		return
+	}
+	results, err := s.EventService.GetEventVideos(openID)
 	if err != nil {
 		c.JSON(500, err.Error())
 		return
-	}
-	var results []event.EventRepos
-	for _, e := range events {
-		var videos []string
-		startTime := e.StartTime
-		for startTime < e.EndTime {
-			videoIDs, err := tcos.GetCosFileList(fmt.Sprintf("highlight/court%d/%d/%d/", e.CourtID, e.Date,
-				e.StartTime))
-			if err != nil {
-				c.JSON(500, err.Error())
-				return
-			}
-			videos = append(videos, videoIDs...)
-			if startTime%100 != 0 {
-				startTime += 100
-				startTime -= 30
-			} else {
-				startTime += 30
-			}
-		}
-
-		results = append(results, event.EventRepos{Event: e, Videos: videos})
 	}
 	c.JSON(200, resp.ToStruct(results, err))
 }

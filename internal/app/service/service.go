@@ -82,8 +82,14 @@ func (s *Service) ToggleCollectVideo(c *gin.Context) {
 		c.JSON(400, "请先登录")
 		return
 	}
-	videoID := c.Param("fileID")
-	collectRecord, err := s.CollectService.ToggleCollectVideo(openID, videoID)
+	body, _ := ioutil.ReadAll(c.Request.Body)
+	newCollect := &model.Collect{}
+	err := json.Unmarshal(body, newCollect)
+	if err != nil {
+		c.JSON(400, err.Error())
+		return
+	}
+	collectRecord, err := s.CollectService.ToggleCollectVideo(openID, newCollect.FileID)
 	if err != nil {
 		c.JSON(500, err.Error())
 		return

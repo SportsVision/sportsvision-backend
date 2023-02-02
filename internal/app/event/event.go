@@ -65,7 +65,7 @@ func (s *Service) GetEventVideos(openID string) ([]EventRepos, error) {
 		startTime := e.StartTime
 		for startTime < e.EndTime {
 			videoIDs, err := tcos.GetCosFileList(fmt.Sprintf("highlight/court%d/%d/%d/", e.CourtID, e.Date,
-				e.StartTime))
+				startTime))
 			if err != nil {
 				log.Println(err)
 				return nil, err

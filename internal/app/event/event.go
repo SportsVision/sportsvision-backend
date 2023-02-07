@@ -72,14 +72,15 @@ func (s *Service) GetEventVideos(openID string) ([]EventRepos, error) {
 		videosWithGif := make([]VideoWithGif, 0)
 		startTime := e.StartTime
 		for startTime < e.EndTime {
-			videoIDs, err := tcos.GetCosFileList(fmt.Sprintf("highlight/court%d/%d/%d/", e.CourtID, e.Date,
+			allLinks, err := tcos.GetCosFileList(fmt.Sprintf("highlight/court%d/%d/%d/", e.CourtID, e.Date,
 				startTime))
 			if err != nil {
 				log.Println(err)
 				return nil, err
 			}
-			videos = append(videos, videoIDs...)
-			videosWithGif = append(videosWithGif, getVideosWithGif(videoIDs)...)
+			videoLinks := filterVideos(allLinks)
+			videos = append(videos, videoLinks...)
+			videosWithGif = append(videosWithGif, getVideosWithGif(videoLinks)...)
 			if startTime%100 != 0 {
 				startTime += 100
 				startTime -= 30
@@ -107,4 +108,15 @@ func getVideosWithGif(videos []string) []VideoWithGif {
 		videosWithGif = append(videosWithGif, VideoWithGif{Gif: gif, Video: video})
 	}
 	return videosWithGif
+}
+
+func filterVideos(links []string) []string {
+	// filter link end with .mp4
+	videos := make([]string, 0)
+	for _, link := range links {
+		if strings.HasSuffix(link, ".mp4") {
+			videos = append(videos, link)
+		}
+	}
+	return videos
 }

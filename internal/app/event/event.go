@@ -3,6 +3,7 @@ package event
 import (
 	"fmt"
 	"log"
+	"strings"
 	"time"
 	"wxcloudrun-golang/internal/pkg/model"
 	"wxcloudrun-golang/internal/pkg/tcos"
@@ -22,8 +23,14 @@ func NewService() *Service {
 
 type EventRepos struct {
 	model.Event
-	CourtName string   `json:"court_name"`
-	Videos    []string `json:"videos"`
+	CourtName     string       `json:"court_name"`
+	Videos        []string     `json:"videos"`
+	VideosWithGif VideoWithGif `json:"videos_with_gif"`
+}
+
+type VideoWithGif struct {
+	Gif   string `json:"gif"`
+	Video string `json:"video"`
 }
 
 func (s *Service) CreateEvent(userOpenID string, courtID int32, date, startTime, endTime int32) (*model.Event, error) {
@@ -62,6 +69,7 @@ func (s *Service) GetEventVideos(openID string) ([]EventRepos, error) {
 	results := make([]EventRepos, 0)
 	for _, e := range events {
 		videos := make([]string, 0)
+		videosWithGif := make([]VideoWithGif, 0)
 		startTime := e.StartTime
 		for startTime < e.EndTime {
 			videoIDs, err := tcos.GetCosFileList(fmt.Sprintf("highlight/court%d/%d/%d/", e.CourtID, e.Date,
@@ -71,6 +79,7 @@ func (s *Service) GetEventVideos(openID string) ([]EventRepos, error) {
 				return nil, err
 			}
 			videos = append(videos, videoIDs...)
+			videosWithGif = append(videosWithGif, getVideosWithGif(videoIDs)...)
 			if startTime%100 != 0 {
 				startTime += 100
 				startTime -= 30
@@ -86,4 +95,16 @@ func (s *Service) GetEventVideos(openID string) ([]EventRepos, error) {
 		results = append(results, EventRepos{Event: e, CourtName: court.Name, Videos: videos})
 	}
 	return results, nil
+}
+
+func getVideosWithGif(videos []string) []VideoWithGif {
+	videosWithGif := make([]VideoWithGif, 0)
+	for _, video := range videos {
+		// replace mp4 to gif
+		links := strings.Split(video, ".")
+		links[len(links)-1] = "gif"
+		gif := strings.Join(links, ".")
+		videosWithGif = append(videosWithGif, VideoWithGif{Gif: gif, Video: video})
+	}
+	return videosWithGif
 }

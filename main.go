@@ -25,6 +25,7 @@ func main() {
 	router.GET("/user/collects", service.GetCollectVideos)
 
 	router.GET("/user/events", service.GetEventVideos)
+	router.GET("/user/events/:id", service.GetEventInfo)
 	router.GET("/recommend/videos", service.GetRecommendVideos)
 
 	log.Fatal(router.Run())

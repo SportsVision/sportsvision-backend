@@ -58,6 +58,38 @@ func (s *Service) GetEventsByUser(userOpenID string) ([]model.Event, error) {
 	return events, nil
 }
 
+func (s *Service) GetEventInfo(eventID int32) (EventRepos, error) {
+	event, err := s.EventDao.Get(&model.Event{ID: eventID})
+	if err != nil {
+		return EventRepos{}, err
+	}
+	court, err := s.CourtDao.Get(&model.Court{ID: event.CourtID})
+	if err != nil {
+		return EventRepos{}, err
+	}
+	startTime := event.StartTime
+	videos := make([]string, 0)
+	videosWithGif := make([]VideoWithGif, 0)
+	for startTime < event.EndTime {
+		allLinks, err := tcos.GetCosFileList(fmt.Sprintf("highlight/court%d/%d/%d/", event.CourtID, event.Date,
+			startTime))
+		if err != nil {
+			log.Println(err)
+			return EventRepos{}, err
+		}
+		videoLinks := filterVideos(allLinks)
+		videos = append(videos, videoLinks...)
+		videosWithGif = append(videosWithGif, getVideosWithGif(videoLinks)...)
+		if startTime%100 != 0 {
+			startTime += 100
+			startTime -= 30
+		} else {
+			startTime += 30
+		}
+	}
+	return EventRepos{Event: *event, CourtName: court.Name, Videos: videos, VideosWithGif: videosWithGif}, nil
+}
+
 func (s *Service) GetEventVideos(openID string) ([]EventRepos, error) {
 	events := make([]model.Event, 0)
 	var err error

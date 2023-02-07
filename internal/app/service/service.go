@@ -137,6 +137,18 @@ func (s *Service) GetEventVideos(c *gin.Context) {
 	c.JSON(200, resp.ToStruct(results, err))
 }
 
+// GetEventInfo 获取事件
+func (s *Service) GetEventInfo(c *gin.Context) {
+	eventID := c.Param("id")
+	eventIDInt, _ := strconv.Atoi(eventID)
+	event, err := s.EventService.GetEventInfo(int32(eventIDInt))
+	if err != nil {
+		c.JSON(500, err.Error())
+		return
+	}
+	c.JSON(200, resp.ToStruct(event, err))
+}
+
 // GetCollectVideos 获取用户收藏的视频
 func (s *Service) GetCollectVideos(c *gin.Context) {
 	openID := c.GetHeader("X-WX-OPENID")

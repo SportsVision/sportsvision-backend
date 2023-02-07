@@ -23,9 +23,9 @@ func NewService() *Service {
 
 type EventRepos struct {
 	model.Event
-	CourtName     string       `json:"court_name"`
-	Videos        []string     `json:"videos"`
-	VideosWithGif VideoWithGif `json:"videos_with_gif"`
+	CourtName     string         `json:"court_name"`
+	Videos        []string       `json:"videos"`
+	VideosWithGif []VideoWithGif `json:"videos_with_gif"`
 }
 
 type VideoWithGif struct {
@@ -92,7 +92,7 @@ func (s *Service) GetEventVideos(openID string) ([]EventRepos, error) {
 			log.Println(err)
 			return nil, err
 		}
-		results = append(results, EventRepos{Event: e, CourtName: court.Name, Videos: videos})
+		results = append(results, EventRepos{Event: e, CourtName: court.Name, Videos: videos, VideosWithGif: videosWithGif})
 	}
 	return results, nil
 }

@@ -50,6 +50,10 @@ func (s *Service) CreateEvent(userOpenID string, courtID int32, date, startTime,
 	return event, err
 }
 
+func (s *Service) DeleteEvent(openID string, eventID int32) error {
+	return s.EventDao.Delete(&model.Event{OpenID: openID, ID: eventID})
+}
+
 func (s *Service) GetEventsByUser(userOpenID string) ([]model.Event, error) {
 	events, err := s.EventDao.GetsByDesc(&model.Event{OpenID: userOpenID})
 	if err != nil {

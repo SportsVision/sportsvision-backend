@@ -21,6 +21,7 @@ func main() {
 	router.GET("/courts/:id/judge", service.JudgeLocation)
 
 	router.POST("/events", service.StartEvent)
+	router.DELETE("/events/:id", service.DeleteEvent)
 	router.POST("/collects", service.ToggleCollectVideo)
 	router.GET("/user/collects", service.GetCollectVideos)
 

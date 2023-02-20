@@ -73,6 +73,18 @@ func (s *Service) StartEvent(c *gin.Context) {
 	c.JSON(200, resp.ToStruct(newEvent, err))
 }
 
+func (s *Service) DeleteEvent(c *gin.Context) {
+	openID := c.GetHeader("X-WX-OPENID")
+	eventID := c.Param("id")
+	eventIDInt, _ := strconv.Atoi(eventID)
+	err := s.EventService.DeleteEvent(openID, int32(eventIDInt))
+	if err != nil {
+		c.JSON(500, err.Error())
+		return
+	}
+	c.JSON(200, resp.ToStruct(nil, err))
+}
+
 // 主页面相关
 
 // ToggleCollectVideo 收藏视频

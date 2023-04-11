@@ -164,7 +164,7 @@ func getLowQualityVideo(video string) string {
 	domains := strings.Split(video, "/")
 	for index, domain := range domains {
 		if domain == "highlight" {
-			domains[index] = "raw"
+			domains[index] = "preview"
 			break
 		}
 	}

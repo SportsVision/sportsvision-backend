@@ -162,6 +162,11 @@ func filterVideos(links []string) []string {
 
 func getLowQualityVideo(video string) string {
 	domains := strings.Split(video, "/")
-	domains[0] = "raw"
+	for index, domain := range domains {
+		if domain == "highlight" {
+			domains[index] = "raw"
+			break
+		}
+	}
 	return strings.Join(domains, "/")
 }

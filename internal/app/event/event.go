@@ -23,9 +23,10 @@ func NewService() *Service {
 
 type EventRepos struct {
 	model.Event
-	CourtName     string         `json:"court_name"`
-	Videos        []string       `json:"videos"`
-	VideosWithGif []VideoWithGif `json:"videos_with_gif"`
+	CourtName        string         `json:"court_name"`
+	Videos           []string       `json:"videos"`
+	LowQualityVideos []string       `json:"low_quality_videos"`
+	VideosWithGif    []VideoWithGif `json:"videos_with_gif"`
 }
 
 type VideoWithGif struct {
@@ -73,6 +74,7 @@ func (s *Service) GetEventInfo(eventID int32) (EventRepos, error) {
 	}
 	startTime := event.StartTime
 	videos := make([]string, 0)
+	lowQualityVideos := make([]string, 0)
 	videosWithGif := make([]VideoWithGif, 0)
 	for startTime < event.EndTime {
 		allLinks, err := tcos.GetCosFileList(fmt.Sprintf("highlight/court%d/%d/%d/", event.CourtID, event.Date,
@@ -83,6 +85,7 @@ func (s *Service) GetEventInfo(eventID int32) (EventRepos, error) {
 		}
 		videoLinks := filterVideos(allLinks)
 		videos = append(videos, videoLinks...)
+		lowQualityVideos = append(lowQualityVideos, getLowQualityVideos(videoLinks)...)
 		videosWithGif = append(videosWithGif, getVideosWithGif(videoLinks)...)
 		if startTime%100 != 0 {
 			startTime += 100
@@ -155,4 +158,14 @@ func filterVideos(links []string) []string {
 		}
 	}
 	return videos
+}
+
+func getLowQualityVideos(videos []string) []string {
+	var result []string
+	for _, video := range videos {
+		domains := strings.Split(video, "/")
+		domains[0] = "raw"
+		result = append(result, strings.Join(domains, "/"))
+	}
+	return result
 }

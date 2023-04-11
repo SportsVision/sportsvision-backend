@@ -23,15 +23,15 @@ func NewService() *Service {
 
 type EventRepos struct {
 	model.Event
-	CourtName        string         `json:"court_name"`
-	Videos           []string       `json:"videos"`
-	LowQualityVideos []string       `json:"low_quality_videos"`
-	VideosWithGif    []VideoWithGif `json:"videos_with_gif"`
+	CourtName     string         `json:"court_name"`
+	Videos        []string       `json:"videos"`
+	VideosWithGif []VideoWithGif `json:"videos_with_gif"`
 }
 
 type VideoWithGif struct {
-	Gif   string `json:"gif"`
-	Video string `json:"video"`
+	Gif             string `json:"gif"`
+	Video           string `json:"video"`
+	LowQualityVideo string `json:"low_quality_video"`
 }
 
 func (s *Service) CreateEvent(userOpenID string, courtID int32, date, startTime, endTime int32) (*model.Event, error) {
@@ -74,7 +74,6 @@ func (s *Service) GetEventInfo(eventID int32) (EventRepos, error) {
 	}
 	startTime := event.StartTime
 	videos := make([]string, 0)
-	lowQualityVideos := make([]string, 0)
 	videosWithGif := make([]VideoWithGif, 0)
 	for startTime < event.EndTime {
 		allLinks, err := tcos.GetCosFileList(fmt.Sprintf("highlight/court%d/%d/%d/", event.CourtID, event.Date,
@@ -85,7 +84,6 @@ func (s *Service) GetEventInfo(eventID int32) (EventRepos, error) {
 		}
 		videoLinks := filterVideos(allLinks)
 		videos = append(videos, videoLinks...)
-		lowQualityVideos = append(lowQualityVideos, getLowQualityVideos(videoLinks)...)
 		videosWithGif = append(videosWithGif, getVideosWithGif(videoLinks)...)
 		if startTime%100 != 0 {
 			startTime += 100
@@ -132,7 +130,8 @@ func (s *Service) GetEventVideos(openID string) ([]EventRepos, error) {
 			log.Println(err)
 			return nil, err
 		}
-		results = append(results, EventRepos{Event: e, CourtName: court.Name, Videos: videos, VideosWithGif: videosWithGif})
+		results = append(results, EventRepos{Event: e, CourtName: court.Name, Videos: videos,
+			VideosWithGif: videosWithGif})
 	}
 	return results, nil
 }
@@ -144,7 +143,8 @@ func getVideosWithGif(videos []string) []VideoWithGif {
 		links := strings.Split(video, ".")
 		links[len(links)-1] = "gif"
 		gif := strings.Join(links, ".")
-		videosWithGif = append(videosWithGif, VideoWithGif{Gif: gif, Video: video})
+		lowQualityVideos := getLowQualityVideo(video)
+		videosWithGif = append(videosWithGif, VideoWithGif{Gif: gif, Video: video, LowQualityVideo: lowQualityVideos})
 	}
 	return videosWithGif
 }
@@ -160,12 +160,8 @@ func filterVideos(links []string) []string {
 	return videos
 }
 
-func getLowQualityVideos(videos []string) []string {
-	var result []string
-	for _, video := range videos {
-		domains := strings.Split(video, "/")
-		domains[0] = "raw"
-		result = append(result, strings.Join(domains, "/"))
-	}
-	return result
+func getLowQualityVideo(video string) string {
+	domains := strings.Split(video, "/")
+	domains[0] = "raw"
+	return strings.Join(domains, "/")
 }

@@ -21,17 +21,30 @@ func NewService() *Service {
 	}
 }
 
-type EventRepos struct {
+// type EventRepos struct {
+// 	model.Event
+// 	CourtName     string         `json:"court_name"`
+// 	Videos        []string       `json:"videos"`
+// 	VideosWithGif []VideoWithGif `json:"videos_with_gif"`
+// }
+
+type EventInfos struct {
 	model.Event
-	CourtName     string         `json:"court_name"`
-	Videos        []string       `json:"videos"`
-	VideosWithGif []VideoWithGif `json:"videos_with_gif"`
+	CourtName     string          `json:"court_name"`
+	Videos        []string        `json:"videos"`
+	VideosWithGif []VideoGifBatch `json:"videos_with_gif"`
 }
 
 type VideoWithGif struct {
 	Gif             string `json:"gif"`
 	Video           string `json:"video"`
 	LowQualityVideo string `json:"low_quality_video"`
+}
+
+type VideoGifBatch struct {
+	StartTime string         `json:"start_time"`
+	EndTime   string         `json:"end_time"`
+	VideoGifs []VideoWithGif `json:"video_gif_batch"`
 }
 
 func (s *Service) CreateEvent(userOpenID string, courtID int32, date, startTime, endTime int32) (*model.Event, error) {
@@ -63,28 +76,60 @@ func (s *Service) GetEventsByUser(userOpenID string) ([]model.Event, error) {
 	return events, nil
 }
 
-func (s *Service) GetEventInfo(eventID int32) (EventRepos, error) {
+func (s *Service) GetEventInfo(eventID int32) (EventInfos, error) {
 	event, err := s.EventDao.Get(&model.Event{ID: eventID})
 	if err != nil {
-		return EventRepos{}, err
+		return EventInfos{}, err
 	}
 	court, err := s.CourtDao.Get(&model.Court{ID: event.CourtID})
 	if err != nil {
-		return EventRepos{}, err
+		return EventInfos{}, err
 	}
 	startTime := event.StartTime
 	videos := make([]string, 0)
+	videoGifBatchs := make([]VideoGifBatch, 0)
 	videosWithGif := make([]VideoWithGif, 0)
 	for startTime < event.EndTime {
 		allLinks, err := tcos.GetCosFileList(fmt.Sprintf("highlight/court%d/%d/%d/", event.CourtID, event.Date,
 			startTime))
 		if err != nil {
 			log.Println(err)
-			return EventRepos{}, err
+			return EventInfos{}, err
 		}
 		videoLinks := filterVideos(allLinks)
 		videos = append(videos, videoLinks...)
 		videosWithGif = append(videosWithGif, getVideosWithGif(videoLinks)...)
+		lastStartTime := ``
+		lastEndTime := ``
+		videoGifs := make([]VideoWithGif, 0)
+		for _, video_gif := range videosWithGif {
+			urlLastPart := strings.Split(video_gif.Gif, "/n")[1]
+			_start_time_str := strings.Split(urlLastPart, "_")[0]
+			_end_time_str := strings.Split(urlLastPart, "_")[1]
+			if strings.Compare(lastStartTime, ``) == 0 {
+				lastStartTime = _start_time_str
+				lastEndTime = _end_time_str
+			}
+			if strings.Compare(_start_time_str, lastStartTime) != 0 {
+				videoGifBatchs = append(videoGifBatchs, VideoGifBatch{
+					StartTime: lastStartTime,
+					EndTime:   lastEndTime,
+					VideoGifs: videoGifs,
+				})
+				lastStartTime = _start_time_str
+				lastEndTime = _end_time_str
+				videoGifs = make([]VideoWithGif, 0)
+			}
+			videoGifs = append(videoGifs, video_gif)
+		}
+		if strings.Compare(lastStartTime, ``) != 0 {
+			videoGifBatchs = append(videoGifBatchs, VideoGifBatch{
+				StartTime: lastStartTime,
+				EndTime:   lastEndTime,
+				VideoGifs: videoGifs,
+			})
+		}
+
 		if startTime%100 != 0 {
 			startTime += 100
 			startTime -= 30
@@ -92,10 +137,10 @@ func (s *Service) GetEventInfo(eventID int32) (EventRepos, error) {
 			startTime += 30
 		}
 	}
-	return EventRepos{Event: *event, CourtName: court.Name, Videos: videos, VideosWithGif: videosWithGif}, nil
+	return EventInfos{Event: *event, CourtName: court.Name, Videos: videos, VideosWithGif: videoGifBatchs}, nil
 }
 
-func (s *Service) GetEventVideos(openID string) ([]EventRepos, error) {
+func (s *Service) GetEventVideos(openID string) ([]EventInfos, error) {
 	events := make([]model.Event, 0)
 	var err error
 	events, err = s.GetEventsByUser(openID)
@@ -103,9 +148,10 @@ func (s *Service) GetEventVideos(openID string) ([]EventRepos, error) {
 		log.Println(err)
 		return nil, err
 	}
-	results := make([]EventRepos, 0)
+	results := make([]EventInfos, 0)
 	for _, e := range events {
 		videos := make([]string, 0)
+		videoGifBatchs := make([]VideoGifBatch, 0)
 		videosWithGif := make([]VideoWithGif, 0)
 		startTime := e.StartTime
 		for startTime < e.EndTime {
@@ -118,6 +164,36 @@ func (s *Service) GetEventVideos(openID string) ([]EventRepos, error) {
 			videoLinks := filterVideos(allLinks)
 			videos = append(videos, videoLinks...)
 			videosWithGif = append(videosWithGif, getVideosWithGif(videoLinks)...)
+			lastStartTime := ``
+			lastEndTime := ``
+			videoGifs := make([]VideoWithGif, 0)
+			for _, video_gif := range videosWithGif {
+				urlLastPart := strings.Split(video_gif.Gif, "/n")[1]
+				_start_time_str := strings.Split(urlLastPart, "_")[0]
+				_end_time_str := strings.Split(urlLastPart, "_")[1]
+				if strings.Compare(lastStartTime, ``) == 0 {
+					lastStartTime = _start_time_str
+					lastEndTime = _end_time_str
+				}
+				if strings.Compare(_start_time_str, lastStartTime) != 0 {
+					videoGifBatchs = append(videoGifBatchs, VideoGifBatch{
+						StartTime: lastStartTime,
+						EndTime:   lastEndTime,
+						VideoGifs: videoGifs,
+					})
+					lastStartTime = _start_time_str
+					lastEndTime = _end_time_str
+					videoGifs = make([]VideoWithGif, 0)
+				}
+				videoGifs = append(videoGifs, video_gif)
+			}
+			if strings.Compare(lastStartTime, ``) != 0 {
+				videoGifBatchs = append(videoGifBatchs, VideoGifBatch{
+					StartTime: lastStartTime,
+					EndTime:   lastEndTime,
+					VideoGifs: videoGifs,
+				})
+			}
 			if startTime%100 != 0 {
 				startTime += 100
 				startTime -= 30
@@ -130,8 +206,8 @@ func (s *Service) GetEventVideos(openID string) ([]EventRepos, error) {
 			log.Println(err)
 			return nil, err
 		}
-		results = append(results, EventRepos{Event: e, CourtName: court.Name, Videos: videos,
-			VideosWithGif: videosWithGif})
+		results = append(results, EventInfos{Event: e, CourtName: court.Name, Videos: videos,
+			VideosWithGif: videoGifBatchs})
 	}
 	return results, nil
 }
